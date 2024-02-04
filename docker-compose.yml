@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      target: development
+    env_file: .env
+    volumes:
+      - .:/go/src/compendit
+    working_dir: /go/src/compendit
+    depends_on:
+      - db
+      - redis
+    networks:
+      - base
+
+  db:
+    image: postgres:15.2
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=auth_development
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    networks:
+      - base
+
+  redis:
+    image: redis:7
+    command: redis-server --requirepass redis --appendonly yes
+    ports:
+      - "63791:6379"
+    networks:
+      - base
+
+networks:
+  base:
+    name: base
